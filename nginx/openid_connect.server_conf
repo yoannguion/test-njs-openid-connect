@@ -8,7 +8,7 @@
 
     location = /_jwks_uri {
         internal;
-        proxy_cache jwk;                              # Cache the JWK Set recieved from IdP
+        proxy_cache jwk;                              # Cache the JWK Set received from IdP
         proxy_cache_valid 200 12h;                    # How long to consider keys "fresh"
         proxy_cache_use_stale error timeout updating; # Use old JWK Set if cannot reach IdP
         proxy_ssl_server_name on;                     # For SNI to the IdP
@@ -37,8 +37,7 @@
         internal;
         proxy_ssl_server_name on; # For SNI to the IdP
         proxy_set_header      Content-Type "application/x-www-form-urlencoded";
-        proxy_set_body        "grant_type=authorization_code&client_id=$oidc_client&$args&redirect_uri=$redirect_base$redir_location";
-        proxy_method          POST;
+        proxy_set_header      Authorization $arg_secret_basic;
         proxy_pass            $oidc_token_endpoint;
    }
 
@@ -49,8 +48,7 @@
         internal;
         proxy_ssl_server_name on; # For SNI to the IdP
         proxy_set_header      Content-Type "application/x-www-form-urlencoded";
-        proxy_set_body        "grant_type=refresh_token&refresh_token=$arg_token&client_id=$oidc_client&client_secret=$oidc_client_secret";
-        proxy_method          POST;
+        proxy_set_header      Authorization $arg_secret_basic;
         proxy_pass            $oidc_token_endpoint;
     }
 
@@ -67,8 +65,9 @@
     }
 
     location = /logout {
-        add_header Set-Cookie "auth_token=; $oidc_cookie_flags"; # Send empty cookie
-        add_header Set-Cookie "auth_redir=; $oidc_cookie_flags"; # Erase original cookie
+        add_header Set-Cookie "auth_token=; $oidc_cookie_flags";
+        add_header Set-Cookie "auth_nonce=; $oidc_cookie_flags";
+        add_header Set-Cookie "auth_redir=; $oidc_cookie_flags";
         js_content oidc.logout;
     }
 
