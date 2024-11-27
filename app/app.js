@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
     res.send(`
       <html>
         <body>
-          <h1>Decoded JWT</h1>
+          <h1>Decoded JWT - <a href="/logout">Logout</a></h1>
           <h2>Header</h2>
           <pre>${JSON.stringify(decoded.header, null, 2)}</pre>
           <h2>Payload</h2>
