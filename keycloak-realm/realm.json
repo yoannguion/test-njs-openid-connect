@@ -1,0 +1,14 @@
+{
+  "realm": "master",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "my-client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "clientAuthenticatorType": "client-secret",
+      "secret": "my-secret",
+      "redirectUris": ["http://localhost/*"]
+    }
+  ]
+}

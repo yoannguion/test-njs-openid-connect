@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  jwt-header-decoder:
+    build:
+      context: ./app
+    container_name: jwt-header-decoder
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+
+  nginx:
+    build:
+      context: ./nginx
+      args:
+        CLIENT_ID: "my-client"
+        CLIENT_SECRET: "my-secret"
+        REDIRECT_URI: "/_codexch"
+        SERVER_PORT: "80"
+    container_name: nginx
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+    depends_on:
+      - keycloak
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: keycloak
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_DB: dev-mem
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      - keycloak-db-data:/opt/keycloak/data
+      - ./keycloak-realm/realm.json:/opt/keycloak/data/import/realm.json:ro
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+volumes:
+  keycloak-db-data:
+
+networks:
+  app-network:
+    driver: bridge
